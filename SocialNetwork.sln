@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocialNetworkModels", "Soci
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repositories", "Repositories\Repositories.csproj", "{1A16579A-4CE1-4BB5-9673-038CF025AE2D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DALNeo4j", "DALNeo4j\DALNeo4j.csproj", "{A1D3C618-8E86-464D-9241-A4F484F8CB50}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BLL", "BLL\BLL.csproj", "{DEC16F0E-B8C9-42A6-828C-3A4AD4C036A6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{1A16579A-4CE1-4BB5-9673-038CF025AE2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A16579A-4CE1-4BB5-9673-038CF025AE2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A16579A-4CE1-4BB5-9673-038CF025AE2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1D3C618-8E86-464D-9241-A4F484F8CB50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1D3C618-8E86-464D-9241-A4F484F8CB50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1D3C618-8E86-464D-9241-A4F484F8CB50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1D3C618-8E86-464D-9241-A4F484F8CB50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEC16F0E-B8C9-42A6-828C-3A4AD4C036A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEC16F0E-B8C9-42A6-828C-3A4AD4C036A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEC16F0E-B8C9-42A6-828C-3A4AD4C036A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEC16F0E-B8C9-42A6-828C-3A4AD4C036A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

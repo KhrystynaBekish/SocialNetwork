@@ -1,7 +1,10 @@
 ﻿using MongoDB.Driver;
 using Repositories.Concrete;
-using Repositories.Interface;
 using SocialNetworkModels;
+using BLL.Services;
+using DALNeo4j.Concrete;
+using DALNeo4j.Model;
+using Neo4j.Driver;
 
 namespace SocialNetwork
 {
@@ -11,8 +14,9 @@ namespace SocialNetwork
 		private static PostRepository _postRepository;
 		private static CommentRepository _commentRepository;
 		private static LikeRepository _likeRepository;
+		private static UserService _userService;
+		private static Neo4jUserRepository _neo4jUserRepository;
 		private static User _loggedInUser;
-
 		static async Task Main(string[] args)
 		{
 			var connectionString = "mongodb+srv://Khrystyna:12rnkk!098@atlascluster.zq8rb.mongodb.net/";
@@ -23,6 +27,14 @@ namespace SocialNetwork
 			_postRepository = new PostRepository(database);
 			_commentRepository = new CommentRepository(database);
 			_likeRepository = new LikeRepository(database);
+
+			// Neo4j
+			var neo4jUri = "neo4j://localhost:7687"; 
+			var neo4jUser = "neo4j"; 
+			var neo4jPassword = "13243546"; 
+			var _neo4jDriver = GraphDatabase.Driver(neo4jUri, AuthTokens.Basic(neo4jUser, neo4jPassword));
+			_neo4jUserRepository = new Neo4jUserRepository(_neo4jDriver);
+			_userService = new UserService(_userRepository, _neo4jUserRepository);
 
 			Console.WriteLine("Welcome to Social Network!\n");
 			char option = 's';
@@ -98,7 +110,7 @@ namespace SocialNetwork
 					Posts = new List<string>()
 				};
 
-				await _userRepository.RegisterUserAsync(newUser);
+				await _userService.RegisterUserAsync(newUser);
 				Console.WriteLine("Registration successful!");
 			}
 			catch (Exception ex)
@@ -106,7 +118,6 @@ namespace SocialNetwork
 				Console.WriteLine("Error during registration: " + ex.Message);
 			}
 		}
-
 		static async Task Login()
 		{
 			Console.WriteLine("Please enter your email:");
@@ -190,6 +201,16 @@ namespace SocialNetwork
 			Console.WriteLine($"Interests: {string.Join(", ", user.Interests)}");
 			Console.WriteLine($"Subscribers: {user.Subscribers.Count}");
 
+			var distance = await _userService.GetDistanceToUserAsync(_loggedInUser.Id, user.Id);
+			if (distance.HasValue)
+			{
+				Console.WriteLine($"\nDistance to this user: {distance}");
+			}
+			else
+			{
+				Console.WriteLine("\nThe distance to this user could not be determined.");
+			}
+
 			var userPosts = await _postRepository.GetPostsByUserAsync(user.Id);
 			Console.WriteLine("\nPosts:");
 			foreach (var post in userPosts)
@@ -197,7 +218,9 @@ namespace SocialNetwork
 				Console.WriteLine($"- {post.Description} (Posted on: {post.Date})");
 			}
 
-			if (user.Subscribers.Contains(_loggedInUser.Id))
+			var isSubscribed = await _userService.IsSubscribedToUserAsync(user.Id, _loggedInUser.Id);
+
+			if (isSubscribed)
 			{
 				Console.WriteLine("\nYou are already subscribed to this user.");
 				Console.WriteLine("Press 'u' to unsubscribe or any other key to return to the search results...");
@@ -222,12 +245,12 @@ namespace SocialNetwork
 			Console.ReadKey();
 		}
 
+
 		static async Task SubscribeToUser(string userId)
 		{
 			try
 			{
-				await _userRepository.SubscribeToUserAsync(userId, _loggedInUser.Id);
-				Console.WriteLine($"You have subscribed to the user with ID: {userId}.");
+				await _userService.SubscribeToUserAsync(userId, _loggedInUser.Id);
 			}
 			catch (Exception ex)
 			{
@@ -239,8 +262,7 @@ namespace SocialNetwork
 		{
 			try
 			{
-				await _userRepository.UnsubscribeFromUserAsync(userId, _loggedInUser.Id);
-				Console.WriteLine($"You have unsubscribed from the user with ID: {userId}.");
+				await _userService.UnsubscribeFromUserAsync(userId, _loggedInUser.Id);
 			}
 			catch (Exception ex)
 			{
@@ -283,7 +305,6 @@ namespace SocialNetwork
 
 			return posts;
 		}
-
 
 		static async Task DisplayPostDetails(Post post)
 		{
@@ -342,7 +363,6 @@ namespace SocialNetwork
 				Console.WriteLine("You cannot like your own post.");
 			}
 		}
-
 
 		static async Task CommentOnPost(Post post)
 		{
